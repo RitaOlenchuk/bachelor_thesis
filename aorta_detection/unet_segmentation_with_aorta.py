@@ -14,6 +14,7 @@ train_path = '/usr/local/hdd/tfunet/aortack/sequences/train'
 test_path = '/usr/local/hdd/tfunet/aortack/sequences/test'
 
 n_train_image = 47
+n_classes = 3
 
 def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
@@ -128,6 +129,13 @@ def dice_coefficient(y_true, y_pred, smooth=1.0):
 def dice_coefficient_loss(y_true, y_pred):
     return 1 - dice_coefficient(y_true, y_pred)
 
+
+def per_pixel_softmax_loss(y_true, y_pred):
+    y_true_f = K.reshape(y_true, (-1, n_classes))
+    y_pred_f = K.flatten(y_pred, (-1, n_classes))
+    return K.losses.softmax(y_true_f, y_pred_f)
+
+
 def unet(pretrained_weights=None, input_size=input_shape, depth=3, init_filter=8, 
          filter_size=3, padding='same', pool_size=[2, 2], strides=[2, 2]):
     
@@ -192,19 +200,19 @@ def unet(pretrained_weights=None, input_size=input_shape, depth=3, init_filter=8
         current_layer = conv
     
     
-    outputs = klayers.Conv2D(1, 1, padding=padding,
+    outputs = klayers.Conv2D(n_classes, 1, padding=padding,
                              kernel_initializer='he_normal')(current_layer)
     outputs = klayers.Activation('sigmoid')(outputs)
     model = Model(inputs=inputs, outputs=outputs)
 
     if(pretrained_weights):
-    	model.load_weights(pretrained_weights)
+        model.load_weights(pretrained_weights)
 
     return model
 
 
 model = unet(depth=4, filter_size=5)
-model.compile(optimizer=Adam(lr=1e-5), loss=dice_coefficient_loss, metrics=[dice_coefficient, 'accuracy'])
+model.compile(optimizer=Adam(lr=1e-5), loss=per_pixel_softmax_loss, metrics=[dice_coefficient, 'accuracy'])
 print(model.summary(line_length=135))
 
 
