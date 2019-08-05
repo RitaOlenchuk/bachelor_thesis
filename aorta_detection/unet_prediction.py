@@ -20,12 +20,12 @@ def dice_coefficient_loss(y_true, y_pred):
     return 1 - dice_coefficient(y_true, y_pred)
 
 # load json and create model
-json_file = open('/usr/local/hdd/rita/DL/model4.json', 'r')
+json_file = open('/usr/local/hdd/rita/DL/model_new2.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 model = model_from_json(loaded_model_json)
 # load weights into new model
-model.load_weights("/usr/local/hdd/rita/DL/model4.h5")
+model.load_weights("/usr/local/hdd/rita/DL/model_new2.h5")
 print("Loaded model from disk")
 
 # evaluate loaded model on test data
@@ -35,7 +35,7 @@ print("After loading model")
 input_shape = (960, 1280, 1)
 #input_shape = (480, 640, 1)
 test_path = "/usr/local/hdd/tfunet/aortack/sequences/test"
-n_test_image = 10
+n_test_image = 12
 endName = "small.tif"
 
 def rgb2gray(rgb):
@@ -46,7 +46,7 @@ test_image = np.empty(n_test_image * input_shape[0] * input_shape[1] )
 test_image = test_image.reshape((n_test_image, ) + input_shape)
 
 files = sorted([f for f in os.listdir(test_path) if f.endswith(endName)])
-files = files[:n_test_image]
+files = files[-n_test_image:]
 
 count = 0
 for i in files:
@@ -59,9 +59,19 @@ for i in files:
     count += 1
 
 test_pred = model.predict(test_image)
-test_pred = (test_pred > 0.5).astype(np.int)
+print(test_pred[0,:,:])
+#test_pred = np.array(test_pred, dtype=np.int8)
+#test_pred = (test_pred > 0.5).astype(np.int)
 
-
+#result_image = np.empty(n_test_image * input_shape[0] * input_shape[1])
+#result_image = result_image.reshape((n_test_image, ) + input_shape)
+#for i in range(n_test_image):
+#    predicted = test_pred[i,:,:,:]
+#    tmp = np.zeros((predicted.shape[0], predicted.shape[1]), dtype=int)
+#    for r in range(tmp.shape[0]):
+#        for c in range(tmp.shape[1]):
+#            value = np.argmax(predicted[r,c])
+#    result_image[i,:,:] = tmp.reshape(input_shape)
 
 def plot_test_pred(test_image, test_pred, testIdx=0):
     fig = plt.figure(figsize=(12, 12))

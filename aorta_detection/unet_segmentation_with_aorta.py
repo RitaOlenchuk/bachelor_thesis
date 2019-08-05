@@ -2,9 +2,10 @@ import os
 import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
-
+import keras
 from keras.models import Model
 from keras import layers as klayers
+from keras.layers import Flatten
 from keras.optimizers import Adam
 from keras import backend as K
 from keras.models import model_from_json
@@ -39,51 +40,17 @@ for i in files:
     count += 1
 print(len(files))
   
+label_shape = (960, 1280, 3)
 
 # load train labels
-train_label = np.empty(n_train_image * input_shape[0] * input_shape[1] )
-train_label = train_label.reshape((n_train_image, ) + input_shape)
-files = sorted([f for f in os.listdir(os.path.join(train_path, "labels")) if f.endswith(endName) or f.endswith("small.tiff")])
+train_label = np.empty(n_train_image * label_shape[0] * label_shape[1] * label_shape[2] )
+train_label = train_label.reshape((n_train_image, ) + label_shape)
+files = sorted([f for f in os.listdir(os.path.join(train_path, "labels_plaque")) if f.endswith(endName) or f.endswith("small.tiff")])
 print(len(files))
 
-'''
 count = 0
 for i in files:
-    img_path = os.path.join(train_path, "labels", str(i))
-    img = Image.open(img_path)
-
-    img = np.array(img, dtype = np.float32)
-    img_copy = img
-    #img = img / np.max(np.max(img))
-    #img[ img > 0.8] = 1
-    #img[img <= 0.8 ] = 0
-    img [img < 20] = 0
-
-    #img = np.array(img, dtype=np.uint8)
-    img [img >= 240] = 1 #aorta
-
-    selParts = (img > 120) & (img < 130)
-    img [selParts] = 2 # plaque
-
-    img [img >= 3] = 0
-    
-    #img = ~img
-
-
-    fig = plt.figure(figsize = (12, 12))
-    plt.subplot(221)
-    plt.imshow(img_copy, cmap='gray')
-    plt.subplot(222)
-    plt.imshow(img, cmap='gray')
-    plt.show()
-
-    train_label[count, :, :, 0] = img[:input_shape[0], :input_shape[1]]
-
-    count += 1
-'''
-count = 0
-for i in files:
-    img_path = os.path.join(train_path, "labels", str(i))
+    img_path = os.path.join(train_path, "labels_plaque", str(i))
     img = Image.open(img_path)
     img_copy = img
     img = np.array(img, dtype=np.float32)
@@ -94,20 +61,13 @@ for i in files:
     img [img >= 0.7] = 1
     img [selParts] = 2
     img [img >= 3] = 0
-    fig = plt.figure(figsize = (12, 12))
-    plt.subplot(221)
-    plt.imshow(img_copy, cmap='gray')
-    plt.subplot(222)
-    plt.imshow(img, cmap='gray')
-    plt.show()
-
-    train_label[count, :, :, 0] = img[:input_shape[0], :input_shape[1]]
-
+    img = (np.arange(img.max()+1) == img[...,None]).astype(np.float32)
+    train_label[count, :, :, :] = img
     count += 1
 
 if False:
 
-    for i in range(44, train_image.shape[0]):
+    for i in range(45, train_image.shape[0]):
         fig = plt.figure(figsize = (12, 12))
         plt.subplot(221)
         plt.imshow(train_image[i, :, :, 0], cmap='gray')
@@ -118,6 +78,7 @@ if False:
         plt.axis('off')
         plt.title('Label 0', fontsize=16)
         plt.show()
+
 
 def dice_coefficient(y_true, y_pred, smooth=1.0):
     y_true_f = K.flatten(y_true)
@@ -132,8 +93,8 @@ def dice_coefficient_loss(y_true, y_pred):
 
 def per_pixel_softmax_loss(y_true, y_pred):
     y_true_f = K.reshape(y_true, (-1, n_classes))
-    y_pred_f = K.flatten(y_pred, (-1, n_classes))
-    return K.losses.softmax(y_true_f, y_pred_f)
+    y_pred_f = K.reshape(y_pred, (-1, n_classes))
+    return keras.losses.categorical_crossentropy(y_true_f, y_pred_f)
 
 
 def unet(pretrained_weights=None, input_size=input_shape, depth=3, init_filter=8, 
@@ -212,11 +173,11 @@ def unet(pretrained_weights=None, input_size=input_shape, depth=3, init_filter=8
 
 
 model = unet(depth=4, filter_size=5)
-model.compile(optimizer=Adam(lr=1e-5), loss=per_pixel_softmax_loss, metrics=[dice_coefficient, 'accuracy'])
+model.compile(optimizer=Adam(lr=1e-5), loss=per_pixel_softmax_loss) #, metrics=[dice_coefficient, 'accuracy'])
 print(model.summary(line_length=135))
 
 
-history = model.fit(train_image, train_label, batch_size=4, epochs=100, verbose=1, validation_split=0.15)
+history = model.fit(train_image, train_label, batch_size=1, epochs=100, verbose=1, validation_split=0.15)
 
 # serialize model to JSON
 model_json = model.to_json()
@@ -236,7 +197,7 @@ plt.xlabel('epoch')
 plt.legend(['train', 'validation'], loc='upper right')
 
 plt.subplot(222)
-plt.plot(history.history['acc'])
+#plt.plot(history.history['acc'])
 plt.plot(history.history['val_acc'])
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
