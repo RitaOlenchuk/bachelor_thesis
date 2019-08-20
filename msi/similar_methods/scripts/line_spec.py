@@ -1,3 +1,4 @@
+import numpy as np
 from pyimzml.ImzMLParser import ImzMLParser
 
 def tupel2map(spec):
@@ -10,7 +11,7 @@ def get_spec(x, y1, y2, imzML_file):
         try:
             idx = parser.coordinates.index((x, y, 1))
             spec_map = tupel2map(parser.getspectrum(idx))
-            part_map[idx] = spec_map
+            part_map[idx] = np.array(list(spec_map.values()))
         except:
             print(f"({x}, {y}, 1) is not in list.")
     return part_map

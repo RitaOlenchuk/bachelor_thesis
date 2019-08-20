@@ -2,6 +2,7 @@ import os
 import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
+from skimage.exposure import equalize_adapthist
 import keras
 from keras.models import Model
 from keras import layers as klayers
@@ -36,6 +37,7 @@ for i in files:
     img = np.array(img, dtype = np.float32)
     img = rgb2gray(img)
     img /= 255
+    img = equalize_adapthist(img)
     train_image[count, :, :, 0] = img[:input_shape[0], :input_shape[1]]
     count += 1
 print(len(files))
@@ -52,15 +54,15 @@ count = 0
 for i in files:
     img_path = os.path.join(train_path, "labels_plaque", str(i))
     img = Image.open(img_path)
-    img_copy = img
     img = np.array(img, dtype=np.float32)
     img = img / np.max(np.max(img))
-    img_copy = img
+    #img = equalize_adapthist(img)
     img [img < 0.2] = 0
     selParts = (img > 0.45) & (img < 0.55)
     img [img >= 0.7] = 1
     img [selParts] = 2
     img [img >= 3] = 0
+    
     img = (np.arange(img.max()+1) == img[...,None]).astype(np.float32)
     train_label[count, :, :, :] = img
     count += 1
@@ -163,7 +165,7 @@ def unet(pretrained_weights=None, input_size=input_shape, depth=3, init_filter=8
     
     outputs = klayers.Conv2D(n_classes, 1, padding=padding,
                              kernel_initializer='he_normal')(current_layer)
-    outputs = klayers.Activation('sigmoid')(outputs)
+    outputs = klayers.Activation('softmax')(outputs)
     model = Model(inputs=inputs, outputs=outputs)
 
     if(pretrained_weights):
@@ -181,27 +183,27 @@ history = model.fit(train_image, train_label, batch_size=1, epochs=100, verbose=
 
 # serialize model to JSON
 model_json = model.to_json()
-with open("model4.json", "w") as json_file:
+with open("model_softmax_hist.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("model4.h5")
+model.save_weights("model_softmax_hist.h5")
 print("Saved model to disk")
 
 fig = plt.figure(figsize=(15, 12))
 
-plt.subplot(221)
+#plt.subplot(221)
 plt.plot(history.history['loss'])
 plt.plot(history.history['val_loss'])
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'validation'], loc='upper right')
 
-plt.subplot(222)
+#plt.subplot(222)
 #plt.plot(history.history['acc'])
-plt.plot(history.history['val_acc'])
-plt.ylabel('accuracy')
-plt.xlabel('epoch')
-plt.legend(['train', 'validation'], loc='upper left')
+#plt.plot(history.history['val_acc'])
+#plt.ylabel('accuracy')
+#plt.xlabel('epoch')
+#plt.legend(['train', 'validation'], loc='upper left')
 
 plt.show()
 

@@ -1,7 +1,19 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
-def get_similarity(spec1, spec2, id_map):
+def get_similarity(id1, id2, intens1, intens2):
+    
+    #Similarity (dot product) of two comlpete spectra
+    intens1 = intens1/np.max(intens1)
+    intens2 = intens2/np.max(intens2)
+    
+    intens1 = intens1.reshape(1, len(intens1))
+    intens2 = intens2.reshape(1, len(intens2))
+    cos_lib = cosine_similarity(intens1, intens2)
+
+    return (id1, id2, cos_lib[0][0])
+
+def get_similarity2(spec1, spec2, id_map):
     map_1 = id_map[spec1]
     map_2 = id_map[spec2]
     

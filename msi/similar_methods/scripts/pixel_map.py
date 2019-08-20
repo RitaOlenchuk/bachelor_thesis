@@ -5,6 +5,7 @@ import _pickle as pickle
 import multiprocessing as mp
 import numpy as np
 from pyimzml.ImzMLParser import ImzMLParser
+from itertools import product
 
 imzML_file = sys.argv[1]
 x1 = int(sys.argv[2])
@@ -33,7 +34,28 @@ pixel_map = dict()
 for part_map in results:
     pixel_map = {**pixel_map, **part_map}
 
+a = np.array(list(pixel_map.keys())) 
+id_pairs = list(set(list(product(a,a))))
 
+pool = mp.Pool(processes=mp.cpu_count())
+result_objects = [pool.apply_async(dot_product.get_similarity, args=(t[0], t[1], pixel_map[t[0]], pixel_map[t[1]])) for t in id_pairs]
+results = [r.get() for r in result_objects]
+
+pool.close()
+pool.join()
+
+ids = list(pixel_map.keys())
+d = { ids[i]:i for i in range(len(ids)) }
+
+dot_product_similarity = np.zeros((len(ids), len(ids)))
+for r in results:
+    dot_product_similarity[d[r[0]], d[r[1]]] = dot_product_similarity[d[r[1]], d[r[0]]] = r[2]
+print("--- %s seconds ---" % (time.time() - start_time))
+import matplotlib.pyplot as plt
+plt.imshow(dot_product_similarity)
+plt.show()
+
+exit()
 pool = mp.Pool(processes=mp.cpu_count())
 ids = list(pixel_map.keys())
 print(ids)
