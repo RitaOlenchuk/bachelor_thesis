@@ -1,16 +1,17 @@
 from flask import Flask, jsonify, request, redirect, url_for, send_from_directory
-from flask import render_template
 import os, argparse, json
 import subprocess
 from flask_cors import CORS
 
+dataurl = str(os.path.dirname(os.path.realpath(__file__))) + "/templates/"
+model = "testInteraction.html"
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder=dataurl, static_url_path='/templates')
 CORS(app)
 
 @app.route('/')
-def showModel(name=None):
-    return render_template('testInteraction.html', name=name)
+def showModel():
+    return send_from_directory(dataurl, model)
 
 
 @app.route('/getInfo', methods=['POST'])
