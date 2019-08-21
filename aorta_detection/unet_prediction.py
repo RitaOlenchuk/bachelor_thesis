@@ -1,6 +1,7 @@
 import os
 import numpy as np
 from PIL import Image
+import scipy.misc
 from matplotlib import pyplot as plt
 from skimage.exposure import equalize_adapthist
 
@@ -21,20 +22,20 @@ def dice_coefficient_loss(y_true, y_pred):
     return 1 - dice_coefficient(y_true, y_pred)
 
 # load json and create model
-json_file = open('/usr/local/hdd/rita/DL/model_softmax_hist.json', 'r')
+json_file = open('/usr/local/hdd/rita/DL/model_softmax_hist_640.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
 model = model_from_json(loaded_model_json)
 # load weights into new model
-model.load_weights("/usr/local/hdd/rita/DL/model_softmax_hist.h5")
+model.load_weights("/usr/local/hdd/rita/DL/model_softmax_hist_640.h5")
 print("Loaded model from disk")
 
 # evaluate loaded model on test data
 model.compile(optimizer=Adam(lr=1e-5), loss=dice_coefficient_loss, metrics=[dice_coefficient, 'accuracy'])
 print("After loading model")
 
-input_shape = (960, 1280, 1)
-#input_shape = (480, 640, 1)
+#input_shape = (960, 1280, 1)
+input_shape = (480, 640, 1)
 test_path = "/usr/local/hdd/tfunet/aortack/sequences/test"
 n_test_image = 15
 endName = "small.tif"
@@ -92,4 +93,5 @@ def plot_test_pred(test_image, test_pred, testIdx=0):
 
 
 for idx, i in enumerate(files):
-    plot_test_pred(test_image=test_image, test_pred=result_image, testIdx=idx)
+    scipy.misc.imsave(str(idx)+'_outfile.tif', result_image[idx, :, :, 0])
+    #plot_test_pred(test_image=test_image, test_pred=result_image, testIdx=idx)

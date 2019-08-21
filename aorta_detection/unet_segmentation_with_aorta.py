@@ -22,8 +22,8 @@ def rgb2gray(rgb):
     return np.dot(rgb[...,:3], [0.2989, 0.5870, 0.1140])
 
 # load train images
-input_shape = (960, 1280, 1)
-#input_shape = (480, 640, 1)
+#input_shape = (960, 1280, 1)
+input_shape = (480, 640, 1)
 
 endName = "small.tif"
 
@@ -42,7 +42,7 @@ for i in files:
     count += 1
 print(len(files))
   
-label_shape = (960, 1280, 3)
+label_shape = (480, 640, 3)
 
 # load train labels
 train_label = np.empty(n_train_image * label_shape[0] * label_shape[1] * label_shape[2] )
@@ -64,6 +64,8 @@ for i in files:
     img [img >= 3] = 0
     
     img = (np.arange(img.max()+1) == img[...,None]).astype(np.float32)
+
+
     train_label[count, :, :, :] = img
     count += 1
 
@@ -183,10 +185,10 @@ history = model.fit(train_image, train_label, batch_size=1, epochs=100, verbose=
 
 # serialize model to JSON
 model_json = model.to_json()
-with open("model_softmax_hist.json", "w") as json_file:
+with open("model_softmax_hist_640.json", "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
-model.save_weights("model_softmax_hist.h5")
+model.save_weights("model_softmax_hist_640.h5")
 print("Saved model to disk")
 
 fig = plt.figure(figsize=(15, 12))
