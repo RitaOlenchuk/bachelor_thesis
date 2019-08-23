@@ -6,12 +6,12 @@ from flask_cors import CORS
 dataurl = str(os.path.dirname(os.path.realpath(__file__))) + "/templates/"
 model = "testInteraction.html"
 
-app = Flask(__name__, static_folder=dataurl, static_url_path='/templates')
+app = Flask(__name__, static_folder=dataurl)
 CORS(app)
 
 @app.route('/')
 def showModel():
-    return send_from_directory(dataurl, model)
+    return send_from_directory(app.static_folder, model)
 
 
 @app.route('/getInfo', methods=['POST'])
@@ -27,7 +27,16 @@ def getInfo():
     elemID = reqData["elemid"]
 
     
-    newtext = subprocess.check_output("fortune", shell=True).decode().replace("\n", " ")
+    #newtext = subprocess.check_output("fortune", shell=True).decode().replace("\n", " ")
+    if elemID == 0:
+        newtext = 'Tunica externa'
+    elif elemID == 1:
+        newtext = 'Tunica media'
+    elif elemID == 2:
+        newtext = 'Tunica intima'
+    else:
+        newtext = 'Plaque'
+
     print(newtext)
 
     jsonStr = json.dumps({

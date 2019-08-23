@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - interactive cubes</title>
+		<title>three.js</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link type="text/css" rel="stylesheet" href="main.css">
@@ -24,6 +24,7 @@
 			import * as THREE from '../build/three.module.js';
 			import Stats from './jsm/libs/stats.module.js';
 			import { STLLoader } from './jsm/loaders/STLLoader.js';
+			import { OrbitControls } from './jsm/controls/OrbitControls.js';
 
 			var container, stats, containerSide;
 			var camera, scene, raycaster, renderer;
@@ -60,38 +61,42 @@
                 containerSide.style.cssFloat="right"
                 document.body.appendChild( containerSide )
 
-				camera = new THREE.PerspectiveCamera( 70, windowWidth / windowHeight, 1, 10000 );
-
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xf0f0f0 );
+
+				camera = new THREE.PerspectiveCamera( 70, windowWidth / windowHeight, 1, 10000 );
+				//camera.up.set( 0, 1, 1 );
+				camera.position.set( 150, 0, 0 );
+				scene.add( camera );
 
 				var light = new THREE.DirectionalLight( 0xffffff, 1 );
 				light.position.set( 1, 1, 1 ).normalize();
 				scene.add( light );
 
+				raycaster = new THREE.Raycaster();
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( windowWidth,  windowHeight );
+				container.appendChild( renderer.domElement );
+
+				var controls = new OrbitControls( camera, renderer.domElement );
+				controls.addEventListener( 'change', render );
+				controls.minDistance = 100;
+				controls.maxDistance = 100;
+				controls.enablePan = false;
+				controls.target.set( 80, 65, 20 );
+				controls.update();
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
 				var geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
-
-				for ( var i = 0; i < 0; i ++ ) {
-
-					var object = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: Math.random() * 0xffffff } ) );
-
-					object.position.x = Math.random() * 800 - 400;
-					object.position.y = Math.random() * 800 - 400;
-					object.position.z = Math.random() * 800 - 400;
-
-					object.rotation.x = Math.random() * 2 * Math.PI;
-					object.rotation.y = Math.random() * 2 * Math.PI;
-					object.rotation.z = Math.random() * 2 * Math.PI;
-
-					object.scale.x = Math.random() + 0.5;
-					object.scale.y = Math.random() + 0.5;
-                    object.scale.z = Math.random() + 0.5;
-                    
-                    object.elemid = i;
-
-					scene.add( object );
-
-				}
 
 				var loader = new STLLoader();
 				var material1 = new THREE.MeshPhongMaterial( { color: 0xCC0000, specular: 0x111111, shininess: 200 } );
@@ -112,7 +117,7 @@
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
-					mesh.elemid = i;
+					mesh.elemid = 0;
 
 
 					scene.add( mesh );
@@ -135,6 +140,7 @@
 					mesh.scale.set( 5,5,5 );
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
+					mesh.elemid = 1;
 
 					scene.add( mesh );
 
@@ -159,6 +165,7 @@
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
+					mesh.elemid = 2;
 
 					scene.add( mesh );
 
@@ -181,29 +188,11 @@
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
+					mesh.elemid = 3;
 
 					scene.add( mesh );
 
 				} );
-
-
-				raycaster = new THREE.Raycaster();
-
-				renderer = new THREE.WebGLRenderer();
-				renderer.setPixelRatio( window.devicePixelRatio );
-				renderer.setSize( windowWidth,  windowHeight );
-				container.appendChild( renderer.domElement );
-
-				stats = new Stats();
-				container.appendChild( stats.dom );
-
-				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-				document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-
-
-				//
-
-				window.addEventListener( 'resize', onWindowResize, false );
 
 			}
 
@@ -215,11 +204,12 @@
 				xhr.open('POST', 'http://localhost:5000/getInfo', true);
 				xhr.onload = function () {
 					// do something to response
+					console.log('Answer');
 					console.log(this.responseText);
 					var respData = JSON.parse(this.responseText);
 
-					elemInfo=document.createElement("p")
-					elemText = document.createTextNode("For Element with id: " + respData["elemid"]);
+					var elemInfo=document.createElement("p")
+					var elemText = document.createTextNode("For Element with id: " + respData["elemid"]);
 					elemInfo.appendChild(elemText)
 					containerSide.appendChild( elemInfo )
 
@@ -268,9 +258,9 @@
 
 				theta += 0.1;
 
-				camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
+				//camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
 				//camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
-				camera.position.z = radius * Math.cos( THREE.Math.degToRad( theta ) );
+				//camera.position.z = radius * Math.cos( THREE.Math.degToRad( theta ) );
 				camera.lookAt( scene.position );
 
 				camera.updateMatrixWorld();
