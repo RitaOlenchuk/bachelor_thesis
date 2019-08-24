@@ -65,7 +65,7 @@
 				scene.background = new THREE.Color( 0xf0f0f0 );
 
 				camera = new THREE.PerspectiveCamera( 70, windowWidth / windowHeight, 1, 10000 );
-				//camera.up.set( 0, 1, 1 );
+				camera.up.set( 0, 0, 1 );
 				camera.position.set( 150, 0, 0 );
 				scene.add( camera );
 
@@ -82,8 +82,8 @@
 
 				var controls = new OrbitControls( camera, renderer.domElement );
 				controls.addEventListener( 'change', render );
-				controls.minDistance = 100;
-				controls.maxDistance = 100;
+				controls.minDistance = 50;
+				controls.maxDistance = 300;
 				controls.enablePan = false;
 				controls.target.set( 80, 65, 20 );
 				controls.update();
@@ -112,7 +112,7 @@
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
 					mesh.position.set( 0.0, 0.0, 0 );
-					mesh.rotation.set( - Math.PI / 2, Math.PI / 2, 0 );
+					mesh.rotation.set(0, - Math.PI / 2, 0 );
 					mesh.scale.set( 5,5,5 );
 
 					mesh.castShadow = true;
@@ -136,8 +136,9 @@
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
 					mesh.position.set( 0.0, 0.0, 0 );
-					mesh.rotation.set( - Math.PI / 2, Math.PI / 2, 0 );
+					mesh.rotation.set( 0, - Math.PI / 2, 0 );
 					mesh.scale.set( 5,5,5 );
+
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
 					mesh.elemid = 1;
@@ -160,7 +161,7 @@
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
 					mesh.position.set( 0.0, 0.0, 0 );
-					mesh.rotation.set( - Math.PI / 2, Math.PI / 2, 0 );
+					mesh.rotation.set( 0, - Math.PI / 2, 0 );
 					mesh.scale.set( 5,5,5 );
 
 					mesh.castShadow = true;
@@ -183,7 +184,7 @@
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
 					mesh.position.set( 0.0, 0.0, 0 );
-					mesh.rotation.set( - Math.PI / 2, Math.PI / 2, 0 );
+					mesh.rotation.set( 0, - Math.PI / 2,  0 );
 					mesh.scale.set( 5,5,5 );
 
 					mesh.castShadow = true;
@@ -230,7 +231,9 @@
 				camera.aspect = windowWidth / windowHeight;
 				camera.updateProjectionMatrix();
 
-				renderer.setSize( windowWidth, windowHeight );
+				renderer.setSize( window.innerWidth, window.innerHeight  );
+
+				render();
 
 			}
 
