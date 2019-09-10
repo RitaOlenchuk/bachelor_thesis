@@ -9,7 +9,7 @@ from sklearn.cluster import KMeans
 from scipy.spatial.distance import squareform
 from pyimzml.ImzMLParser import ImzMLParser, browse, getionimage
 
-
+#test: python3 cluster.py /Users/rita/Uni/bachelor_thesis/msi/181114_AT1_Slide_D_Proteins.imzML 0 0
 imzMLfile = sys.argv[1]
 region = int(sys.argv[2])
 start = int(sys.argv[3])
@@ -18,27 +18,6 @@ parser = ImzMLParser(imzMLfile)
 
 similarity_matrix = open(imzMLfile+"."+str(start)+"_"+str(region)+".pickle","rb")
 similarity = pickle.load(similarity_matrix)
-
-def get_matrix(m, xm, ym):
-    result = np.zeros((m.shape))
-    for i in range(ym):
-        for j in range(xm): #for each block
-            base_x = i*xm
-            base_y = j*ym
-
-            new_x = i*xm + j
-            for ii in range(xm):
-                for jj in range(ym): #for each element in the block
-                    new_y = ii*ym + jj
-                    baseXII = base_x+ii
-                    baseYJJ = base_y+jj
-
-                    oldValue = m[baseXII, baseYJJ]
-
-                    result[new_x, new_y] = oldValue
-
-                
-    return result
 
 imze = segment.IMZMLExtract(imzMLfile)
 
@@ -86,72 +65,100 @@ c2 = fcluster(Z2, t=0.2, criterion='distance')
 image_UPGMA_dot = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
 image_UPGMA_pixel = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
 
+c11 = fcluster(Z1, t=0, criterion='distance')
+c22 = fcluster(Z2, t=0, criterion='distance')
+image_UPGMA_dot1 = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
+image_UPGMA_pixel1 = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
+
 print('Transforming in real coordinates...')
 for i in ids:
     image_UPGMA_dot[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = c1[ids.index(i)]
     image_UPGMA_pixel[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = c2[ids.index(i)]
 
-print("Kmeans clustering...")
-kmeans1 = KMeans(n_clusters=5, random_state=0).fit(dist_dot_product)
-kmeans2 = KMeans(n_clusters=5, random_state=0).fit(general_dot_product)
-image_kmeans_dot = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
-image_kmeans_pixel = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
-print('Transforming in real coordinates...')
-for i in ids:
-    image_kmeans_dot[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = kmeans1.labels_[ids.index(i)]
-    image_kmeans_pixel[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = kmeans2.labels_[ids.index(i)]
+    image_UPGMA_dot1[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = c11[ids.index(i)]
+    image_UPGMA_pixel1[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = c22[ids.index(i)]
 
+fig = plt.figure(figsize=(50, 20))
 
-print('Kmedoid clustering...')
-kmedoid_dot = Cluster.kmedoids(dist_dot_product, nclusters=5, npass=5, initialid=None) #Distance Matrix!!!
-kmedoid_pixel = Cluster.kmedoids(general_dot_product, nclusters=5, npass=5, initialid=None) #Distance Matrix!!!
-image_kmedoid_dot = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
-image_kmedoid_pixel = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
-for i in ids:
-    image_kmedoid_dot[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = kmedoid_dot[0][ids.index(i)]
-    image_kmedoid_pixel[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = kmedoid_pixel[0][ids.index(i)]
-
-fig = plt.figure(figsize=(20, 30))
-fig.add_subplot(3,2,1)
-im = plt.imshow(image_kmedoid_dot, cmap='hot', interpolation='nearest')
-plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
-plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
-plt.title('K medoid distance only')
-plt.colorbar(im, fraction=0.046, pad=0.04)
-
-fig.add_subplot(3,2,2)
-im = plt.imshow(image_kmedoid_pixel, cmap='hot', interpolation='nearest')
-plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
-plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
-plt.title('K medoid dot-product and pixel distances')
-plt.colorbar(im, fraction=0.046, pad=0.04)
-
-
-fig.add_subplot(3,2,3)
-im = plt.imshow(image_kmeans_dot, cmap='hot', interpolation='nearest')
-plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
-plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
-plt.title('K means distance only')
-plt.colorbar(im, fraction=0.046, pad=0.04)
-
-fig.add_subplot(3,2,4)
-im = plt.imshow(image_kmeans_pixel, cmap='hot', interpolation='nearest')
-plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
-plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
-plt.title('K means dot-product and pixel distances')
-plt.colorbar(im, fraction=0.046, pad=0.04)
-
-fig.add_subplot(3,2,5)
+fig.add_subplot(2,4,1)
 im = plt.imshow(image_UPGMA_dot, cmap='hot', interpolation='nearest')
+plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
+plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
+plt.title('UPGMA distance only t='+str(0.1))
+plt.colorbar(im, fraction=0.046, pad=0.04)
+
+fig.add_subplot(2,4,5)
+im = plt.imshow(image_UPGMA_pixel, cmap='hot', interpolation='nearest')
+plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
+plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
+plt.title('UPGMA + pixel distances t='+str(0.2))
+plt.colorbar(im, fraction=0.046, pad=0.04)
+
+image_UPGMA_dot[(image_UPGMA_dot == 5) | (image_UPGMA_dot == 3) ] = 0
+image_UPGMA_pixel[(image_UPGMA_pixel == 3)] = 0
+
+dict_dot = dict(zip(list(np.unique(image_UPGMA_dot)), list(range(len(np.unique(image_UPGMA_dot))))))
+dict_pixel = dict(zip(list(np.unique(image_UPGMA_pixel)), list(range(len(np.unique(image_UPGMA_pixel))))))
+
+for i in range(image_UPGMA_dot.shape[0]):
+    for j in range(image_UPGMA_dot.shape[1]):
+        image_UPGMA_dot[i,j] = dict_dot[image_UPGMA_dot[i,j]]
+        image_UPGMA_pixel[i,j] = dict_pixel[image_UPGMA_pixel[i,j]]
+
+fig.add_subplot(2,4,2)
+im = plt.imshow(image_UPGMA_dot)
 plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
 plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
 plt.title('UPGMA distance only')
 plt.colorbar(im, fraction=0.046, pad=0.04)
 
-fig.add_subplot(3,2,6)
-im = plt.imshow(image_UPGMA_pixel, cmap='hot', interpolation='nearest')
+fig.add_subplot(2,4,6)
+im = plt.imshow(image_UPGMA_pixel)
 plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
 plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
 plt.title('UPGMA + pixel distances')
 plt.colorbar(im, fraction=0.046, pad=0.04)
+
+fig.add_subplot(2,4,3)
+im = plt.imshow(image_UPGMA_dot1, cmap='hot', interpolation='nearest')
+plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
+plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
+plt.title('UPGMA distance only')
+plt.colorbar(im, fraction=0.046, pad=0.04)
+
+fig.add_subplot(2,4,7)
+im = plt.imshow(image_UPGMA_pixel1, cmap='hot', interpolation='nearest')
+plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
+plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
+plt.title('UPGMA + pixel distances')
+plt.colorbar(im, fraction=0.046, pad=0.04)
+
+image_UPGMA_dot[image_UPGMA_dot > 0] = 1
+image_UPGMA_pixel[image_UPGMA_pixel > 0] = 1
+
+image_UPGMA_dot1 = np.multiply(image_UPGMA_dot1, image_UPGMA_dot)
+image_UPGMA_pixel1 = np.multiply(image_UPGMA_pixel1, image_UPGMA_pixel)
+
+dict_dot1 = dict(zip(list(np.unique(image_UPGMA_dot1)), list(range(len(np.unique(image_UPGMA_dot1))))))
+dict_pixel1 = dict(zip(list(np.unique(image_UPGMA_pixel1)), list(range(len(np.unique(image_UPGMA_pixel1))))))
+
+for i in range(image_UPGMA_dot1.shape[0]):
+    for j in range(image_UPGMA_dot1.shape[1]):
+        image_UPGMA_dot1[i,j] = dict_dot1[image_UPGMA_dot1[i,j]]
+        image_UPGMA_pixel1[i,j] = dict_pixel1[image_UPGMA_pixel1[i,j]]
+
+fig.add_subplot(2,4,4)
+im = plt.imshow(image_UPGMA_dot1)
+plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
+plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
+plt.title('UPGMA distance only')
+plt.colorbar(im, fraction=0.046, pad=0.04)
+
+fig.add_subplot(2,4,8)
+im = plt.imshow(image_UPGMA_pixel1)
+plt.xticks(range(0,xs[1]-xs[0],5), np.arange(xs[0], xs[1],5))
+plt.yticks(range(0,ys[1]-ys[0],5), np.arange(ys[0], ys[1],5))
+plt.title('UPGMA + pixel distances')
+plt.colorbar(im, fraction=0.046, pad=0.04)
+
 plt.show()
