@@ -3,10 +3,10 @@ import scipy.misc
 import matplotlib.pyplot as plt 
 
 
-image = scipy.misc.imread('/usr/local/hdd/rita/aorta/biorender.png', mode='RGB')
+image = scipy.misc.imread('/usr/local/hdd/rita/bachelor_thesis/threeInteraction/templates/models/biorender3.png', mode='RGB')
 
-#plt.imshow(image)
-#plt.show()
+plt.imshow(image)
+plt.show()
 
 def translate(image, wanted, name):
     image_copy = image.copy()
@@ -22,8 +22,8 @@ m1 = [236, 161, 160]
 m2 = [217, 119, 126]
 m3 = [242, 182, 182]
 plaque = [230, 134, 18]
-phage = [[155, 145, 204], [118, 92, 156]]
-neur = [[151, 196, 196],[74, 120, 143]]
+phage = [190, 206, 225]
+neur = [167, 88, 150]
 
 translate(image, m1, 'membrane1.png')
 translate(image, m2, 'membrane2.png')

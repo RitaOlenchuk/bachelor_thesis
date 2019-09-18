@@ -43,8 +43,12 @@ def getInfo():
         newtext = 'Tunica media'
     elif elemID == 2:
         newtext = 'Tunica intima'
-    else:
+    elif elemID == 3:
         newtext = 'Plaque'
+    elif elemID == 4:
+        newtext = 'Neurophil'
+    else:
+        newtext = 'Macrophage'
 
     print(newtext)
 
