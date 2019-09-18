@@ -30,16 +30,25 @@ for class_ in root:
     d[class_name] = {'minX':minX, 'maxX':maxX, 'minY':minY, 'maxY':maxY}
 print(d)
 
-img = Image.open(imagename)
+img = Image.open(imagename)#.convert('L')
 img = np.asarray(img)
+
+#img = np.flip(img, 0)
 fig,ax = plt.subplots(1)
-ax.imshow(img)
-print(img.shape)
+ax.imshow(img, cmap='gray')
+#factor = 1.2625 BCA
+factor = 1.37225
+xfactor = 1.37225
+yfactor = 1.35
+
+xfactor = 0.3025
+yfactor = 0.3025
+
 for class_ in d:
-    minX = int(d[class_]['minX'])
-    maxX = int(d[class_]['maxX']) 
-    minY = int(d[class_]['minY']) 
-    maxY = int(d[class_]['maxY']) 
+    minX = int(d[class_]['minX']/xfactor) 
+    maxX = int(d[class_]['maxX']/xfactor) 
+    minY = int(d[class_]['minY']/yfactor) 
+    maxY = int(d[class_]['maxY']/yfactor)
     rect = patches.Rectangle((minX, minY),maxX-minX, maxY-minY,linewidth=1,edgecolor='r',facecolor='none')
     ax.add_patch(rect)
 plt.show()
