@@ -4,15 +4,24 @@ import subprocess
 from flask_cors import CORS
 
 dataurl = str(os.path.dirname(os.path.realpath(__file__))) + "/templates/"
+print(dataurl)
+
 model = "testInteraction.html"
 
-app = Flask(__name__, static_folder=dataurl)
+app = Flask(__name__, static_folder=dataurl, static_url_path='/templates')
 CORS(app)
+
+#@app.route('/')
+#def showModel():
+#    return send_from_directory(app.static_folder, model)
 
 @app.route('/')
 def showModel():
     return send_from_directory(app.static_folder, model)
 
+@app.route('/<path:filename>')
+def base_static(filename):
+    return send_from_directory(app.static_folder, filename)
 
 @app.route('/getInfo', methods=['POST'])
 def getInfo():

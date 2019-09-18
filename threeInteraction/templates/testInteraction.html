@@ -20,7 +20,7 @@
 			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> webgl - interactive cubes
 		</div>
 
-		<script type="module">
+		<script type=module>
 			import * as THREE from '../build/three.module.js';
 			import Stats from './jsm/libs/stats.module.js';
 			import { STLLoader } from './jsm/loaders/STLLoader.js';
@@ -65,8 +65,7 @@
 				scene.background = new THREE.Color( 0xf0f0f0 );
 
 				camera = new THREE.PerspectiveCamera( 70, windowWidth / windowHeight, 1, 10000 );
-				camera.up.set( 0, 0, 1 );
-				camera.position.set( 150, 0, 0 );
+				camera.position.set( 0, 0, 100 );
 				scene.add( camera );
 
 				var light = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -82,11 +81,6 @@
 
 				var controls = new OrbitControls( camera, renderer.domElement );
 				controls.addEventListener( 'change', render );
-				controls.minDistance = 50;
-				controls.maxDistance = 300;
-				controls.enablePan = false;
-				controls.target.set( 80, 65, 20 );
-				controls.update();
 
 				stats = new Stats();
 				container.appendChild( stats.dom );
@@ -246,7 +240,6 @@
 
 			}
 
-			//
 
 			function animate() {
 
@@ -259,17 +252,10 @@
 
 			function render() {
 
-				theta += 0.1;
-
-				//camera.position.x = radius * Math.sin( THREE.Math.degToRad( theta ) );
-				//camera.position.y = radius * Math.sin( THREE.Math.degToRad( theta ) );
-				//camera.position.z = radius * Math.cos( THREE.Math.degToRad( theta ) );
-				camera.lookAt( scene.position );
-
-				camera.updateMatrixWorld();
+				//renderer.clear();
+				//renderer.render(scene, camera);
 
 				// find intersections
-
 				raycaster.setFromCamera( mouse, camera );
 
 				var intersects = raycaster.intersectObjects( scene.children );
