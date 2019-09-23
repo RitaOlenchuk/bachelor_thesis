@@ -35,7 +35,7 @@
 			var windowWidth = 0
 			var windowHeight = 0
 
-			var windowWidthMargin = 300;
+			var windowWidthMargin = 500;
 			var windowHeightMargin = 0;
 
 
@@ -54,10 +54,10 @@
                 document.body.appendChild( container );
                 
                 containerSide=document.createElement("div")
-                containerSide.style.background = "#AAAAAA"
+                containerSide.style.background = "#AAAA11"
                 containerSide.style.display="block"
-                containerSide.style.width="200px"
-                containerSide.style.minHeight ="100px"
+                containerSide.style.width=windowWidthMargin+"px"
+                containerSide.style.minHeight =windowHeight+"px"
                 containerSide.style.cssFloat="right"
                 document.body.appendChild( containerSide )
 
@@ -248,17 +248,20 @@
 					console.log('Answer');
 					console.log(this.responseText);
 					var respData = JSON.parse(this.responseText);
-
+					
 					var elemInfo=document.createElement("p")
 					var elemText = document.createTextNode("For Element with id: " + respData["elemid"]);
-					elemInfo.appendChild(elemText)
-					containerSide.appendChild( elemInfo )
+					//elemInfo.appendChild(elemText)
+					//containerSide.appendChild( elemInfo )
 
 					elemInfo=document.createElement("p")
 					elemText = document.createTextNode(respData["text"]);
 					elemInfo.appendChild(elemText)
+					if (containerSide.hasChildNodes()) {
+						containerSide.removeChild(containerSide.childNodes[0]);
+					} 
 					containerSide.appendChild( elemInfo )
-
+					
 
 
 				};
@@ -268,11 +271,11 @@
 
 			function onWindowResize() {
 
-				camera.aspect = windowWidth / windowHeight;
+				var width = window.innerWidth;
+				var height = window.innerHeight;
+				camera.aspect = width / height;
 				camera.updateProjectionMatrix();
-
-				renderer.setSize( window.innerWidth, window.innerHeight  );
-
+				renderer.setSize( width, height );
 				render();
 
 			}
