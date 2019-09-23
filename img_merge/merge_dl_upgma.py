@@ -3,7 +3,7 @@ from PIL import Image
 import imageio
 from matplotlib import pyplot as plt
 
-img_path = '/Users/rita/Uni/bachelor_thesis/DL/1outfile.png'
+img_path = '/usr/local/hdd/rita/DL/results2/0_outfile.png'
 img = Image.open(img_path)
 img = np.array(img, dtype=np.float32)
 img = img / np.max(np.max(img))

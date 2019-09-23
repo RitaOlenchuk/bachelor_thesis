@@ -1,6 +1,7 @@
 import numpy as np
 import sys
 import segment
+import consensus
 import matplotlib.pyplot as plt
 import _pickle as pickle
 from Bio import Cluster
@@ -65,8 +66,8 @@ c2 = fcluster(Z2, t=0.2, criterion='distance')
 image_UPGMA_dot = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
 image_UPGMA_pixel = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
 
-c11 = fcluster(Z1, t=0, criterion='distance')
-c22 = fcluster(Z2, t=0, criterion='distance')
+c11 = fcluster(Z1, t=0.08, criterion='distance')
+c22 = fcluster(Z2, t=0.19, criterion='distance')
 image_UPGMA_dot1 = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
 image_UPGMA_pixel1 = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
 
@@ -78,6 +79,9 @@ for i in ids:
     image_UPGMA_dot1[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = c11[ids.index(i)]
     image_UPGMA_pixel1[parser.coordinates[i][1]-ys[0]][parser.coordinates[i][0]-xs[1]] = c22[ids.index(i)]
 
+
+consensus.get_consensus(1, image_UPGMA_dot, dist_dot_product, ids, imzMLfile, xs, ys, True)
+exit()
 fig = plt.figure(figsize=(50, 20))
 
 fig.add_subplot(2,4,1)

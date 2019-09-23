@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 from PIL import Image
+import scipy.misc
 import xml.etree.ElementTree as ET
 from matplotlib import pyplot as plt
 import matplotlib.patches as patches
@@ -30,7 +31,7 @@ for class_ in root:
     d[class_name] = {'minX':minX, 'maxX':maxX, 'minY':minY, 'maxY':maxY}
 print(d)
 
-img = Image.open(imagename)#.convert('L')
+img = Image.open(imagename).convert('L')
 img = np.asarray(img)
 
 #img = np.flip(img, 0)
@@ -51,4 +52,7 @@ for class_ in d:
     maxY = int(d[class_]['maxY']/yfactor)
     rect = patches.Rectangle((minX, minY),maxX-minX, maxY-minY,linewidth=1,edgecolor='r',facecolor='none')
     ax.add_patch(rect)
+    break
 plt.show()
+
+#scipy.misc.imsave('window.png', img[minY:maxY, minX:maxX])
