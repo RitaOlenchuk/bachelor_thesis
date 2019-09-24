@@ -55,6 +55,7 @@
                 
                 containerSide=document.createElement("div")
                 containerSide.style.background = "#AAAA11"
+				containerSide.style.fontSize = "30px";
                 containerSide.style.display="block"
                 containerSide.style.width=windowWidthMargin+"px"
                 containerSide.style.minHeight =windowHeight+"px"
@@ -256,6 +257,7 @@
 
 					elemInfo=document.createElement("p")
 					elemText = document.createTextNode(respData["text"]);
+					elemInfo.appendChild( document.createTextNode( '\u00A0' ) );
 					elemInfo.appendChild(elemText)
 					if (containerSide.hasChildNodes()) {
 						containerSide.removeChild(containerSide.childNodes[0]);
