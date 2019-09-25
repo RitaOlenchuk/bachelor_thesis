@@ -27,13 +27,15 @@ def get_consensus(cluster_id, matrix, dist_dot_product, ids, imzMLfile, xs, ys, 
     
     cluster_ids = get_cluster_elements(cluster_id, matrix, parser, xs, ys)
     cluster_matrix_ids = [ids.index(elem) for elem in cluster_ids]
+    if len(cluster_matrix_ids)==1:
+        return tupel2map(parser.getspectrum(cluster_matrix_ids[0]))
 
     distance = np.zeros((len(cluster_matrix_ids), len(cluster_matrix_ids)))
 
     for i in range(len(cluster_matrix_ids)):
         for j in range(len(cluster_matrix_ids)):
             distance[i, j] = distance[j, i] = dist_dot_product[cluster_matrix_ids[i], cluster_matrix_ids[j]]
-    
+    print(distance.shape)
     np.fill_diagonal(distance, 0)
     Z = linkage(squareform(distance), method = 'average', metric = 'cosine')
     c = fcluster(Z, t=0, criterion='distance')
@@ -44,30 +46,30 @@ def get_consensus(cluster_id, matrix, dist_dot_product, ids, imzMLfile, xs, ys, 
     spectra_list = list()
     for i in range(len(cluster_matrix_ids)-1):
         if i == 0:
-            new_spectum = average_spectra(tupel2map(parser.getspectrum(cluster_matrix_ids[i])), tupel2map(parser.getspectrum(cluster_matrix_ids[i+1])))
+            new_spectum = average_spectra(tupel2map(parser.getspectrum(cluster_ids[i])), tupel2map(parser.getspectrum(cluster_ids[i+1])))
         else:
             left = distance[i-1, i]
             right = distance[i, i+1]
             if left > right:
-                new_spectum = average_spectra(new_spectum, tupel2map(parser.getspectrum(cluster_matrix_ids[i])))    
+                new_spectum = average_spectra(new_spectum, tupel2map(parser.getspectrum(cluster_ids[i])))    
             else:
                 spectra_list.append(new_spectum)
-                new_spectum = average_spectra(tupel2map(parser.getspectrum(cluster_matrix_ids[i])), tupel2map(parser.getspectrum(cluster_matrix_ids[i+1]))) 
+                new_spectum = average_spectra(tupel2map(parser.getspectrum(cluster_ids[i])), tupel2map(parser.getspectrum(cluster_ids[i+1]))) 
 
     if not spectra_list:
-            consensus = spectra_list[0]
-            spectra_list.append(new_spectum)
-            for spect in spectra_list:
-                    consensus = average_spectra(consensus, spect)
+        spectra_list.append(new_spectum)
+        consensus = spectra_list[0]
+        for spect in spectra_list:
+            consensus = average_spectra(consensus, spect)
     else:
-            consensus = new_spectum
+        consensus = new_spectum
     if plots:
         plt.figure()
-        for i in cluster_matrix_ids:
-                spectrum = tupel2map(parser.getspectrum(i))
-                lists = spectrum.items()
-                x, y = zip(*lists) # unpack a list of pairs into two tuples
-                plt.plot(x,y/max(y), label="Spectral ID {}".format(i))
+        for i in cluster_ids:
+            spectrum = tupel2map(parser.getspectrum(i))
+            lists = spectrum.items()
+            x, y = zip(*lists) # unpack a list of pairs into two tuples
+            plt.plot(x,y/max(y), label="Spectral ID {}".format(i))
 
         lists = consensus.items()
         x, y = zip(*lists) # unpack a list of pairs into two tuples
