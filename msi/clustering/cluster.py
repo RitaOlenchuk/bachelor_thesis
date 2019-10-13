@@ -81,8 +81,10 @@ print('UPGMA clustering...')
 Z1 = linkage(squareform(dist_dot_product), method = 'average', metric = 'cosine')
 Z2 = linkage(squareform(general_dot_product), method = 'average', metric = 'cosine')
 
-c1 = fcluster(Z1, t=0.1, criterion='distance')
-c2 = fcluster(Z2, t=0.2, criterion='distance')
+#c1 = fcluster(Z1, t=0.1, criterion='distance')
+#c2 = fcluster(Z2, t=0.2, criterion='distance')
+c1 = fcluster(Z1, t=7, criterion='maxclust')
+c2 = fcluster(Z2, t=7, criterion='maxclust')
 image_UPGMA_dot = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
 image_UPGMA_pixel = np.zeros((ys[1]-ys[0], xs[1]-xs[0]))
 
