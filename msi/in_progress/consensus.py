@@ -8,13 +8,19 @@ from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 def tupel2map(spec):
     return dict(zip(spec[0], spec[1]))
 
-def get_cluster_elements(cluster_id, matrix, parser, xs, ys):
-    out = list()
+
+def get_cluster_elements(matrix, parser, xs, ys):
+    cluster2elem = {}
     for x in range(matrix.shape[0]):
         for y in range(matrix.shape[1]):
-            if matrix[x,y]==cluster_id:
-                out.append(parser.coordinates.index(( xs[0]+y, ys[0]+x, 1)))
-    return np.unique(out)
+            try:
+                idx = parser.coordinates.index(( xs[0]+y, ys[0]+x, 1))
+                if not matrix[x,y] in cluster2elem:
+                    cluster2elem[matrix[x,y]] = list()
+                cluster2elem[matrix[x,y]].append(idx)
+            except ValueError:
+                print(f"({xs[0]+y}, {ys[0]+x}, 1) is not in list.")
+    return cluster2elem
 
 def average_spectra(spectrum1, spectrum2):
     new_spectrum = {}
@@ -22,9 +28,8 @@ def average_spectra(spectrum1, spectrum2):
         new_spectrum[mz] = (spectrum1[mz]+spectrum2[mz])/2
     return new_spectrum
 
-def get_average_consensus(cluster_id, matrix, imzMLfile, xs, ys):
-    parser = ImzMLParser(imzMLfile)
-    cluster_ids = get_cluster_elements(cluster_id, matrix, parser, xs, ys)
+def get_average_consensus(cluster_id, cluster2elem, matrix, parser, xs, ys):
+    cluster_ids = cluster2elem[cluster_id]
     consens = tupel2map(parser.getspectrum(cluster_ids[0]))
     for i in range(1, len(cluster_ids)):
         spect = tupel2map(parser.getspectrum(cluster_ids[i]))
@@ -35,10 +40,8 @@ def get_average_consensus(cluster_id, matrix, imzMLfile, xs, ys):
     return consens
 
 
-def get_consensus(cluster_id, matrix, dist_dot_product, ids, imzMLfile, xs, ys, plots=False):
-    parser = ImzMLParser(imzMLfile)
-    
-    cluster_ids = get_cluster_elements(cluster_id, matrix, parser, xs, ys)
+def get_consensus(cluster_id, cluster2elem, parser, matrix, dist_dot_product, ids, imzMLfile, xs, ys, plots=False):
+    cluster_ids = cluster2elem[cluster_id]
     cluster_matrix_ids = [ids.index(elem) for elem in cluster_ids]
     if len(cluster_matrix_ids)==1:
         return tupel2map(parser.getspectrum(cluster_matrix_ids[0]))

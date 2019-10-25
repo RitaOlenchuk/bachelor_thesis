@@ -3,7 +3,7 @@ from PIL import Image
 import imageio
 from matplotlib import pyplot as plt
 
-img_path = '/usr/local/hdd/rita/DL/results2/0_outfile.png'
+img_path = '/usr/local/hdd/aorta_images/img_merge_test/34_outfile.png'
 img = Image.open(img_path)
 img = np.array(img, dtype=np.float32)
 img = img / np.max(np.max(img))
@@ -19,7 +19,7 @@ membrane = np.argwhere(img==1)
 plaque = np.argwhere(img==2)
 
 
-img_path2 = '/Users/rita/Uni/bachelor_thesis/DL/1segmented.png'
+img_path2 = '/usr/local/hdd/aorta_images/img_merge_test/segmented.png'
 img2 = Image.open(img_path2)
 img2 = np.array(img2)
 n_segments = (len(set(img2.flatten())))
@@ -93,7 +93,7 @@ plt.subplot(133)
 plt.imshow(output_image)
 plt.axis('off')
 plt.title('Mix', fontsize=16)
-plt.savefig('dl_segm_mixed2.png')
+#plt.savefig('dl_segm_mixed2.png')
 plt.show()
 
 

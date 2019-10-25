@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import misc
 import ctypes
+import argparse
 import matplotlib.pyplot as plt
 import os,sys
 from PIL import Image
@@ -237,8 +238,9 @@ class IMZMLExtract:
                 continue
             if back_spectrum:
                 cspec = np.subtract(cspec, back_spectrum)
+                cspec[cspec < 0.0] = 0.0
+                cspec = cspec - np.min(cspec)
             cspec = cspec/np.max(cspec)
-            cspec = cspec - np.min(cspec)
             outspectra[coord] = cspec
 
         return outspectra
@@ -433,13 +435,14 @@ class IMZMLExtract:
                 try:
                     idx = self.parser.coordinates.index((x, y, 1))
                     tupl = self.parser.getspectrum(idx)
-                    sp = dict(zip(tupl[0], tupl[1]))
-                    for key in sp:
-                        if key in mz2intens:
-                            mz2intens[key].append(sp[key])
+                    mz = tupl[0]
+                    inten = tupl[1]
+                    for i in range(len(mz)):
+                        if mz[i] in mz2intens:
+                            mz2intens[mz[i]].append(inten[i])
                         else:
-                            mz2intens[key] = list()
-                            mz2intens[key].append(sp[key])
+                            mz2intens[mz[i]] = list()
+                            mz2intens[mz[i]].append(inten[i])
                 except:
                     print(f"({x}, {y}, 1) is not in list.")
 
@@ -449,27 +452,17 @@ class IMZMLExtract:
         return list(mz2avg.values())
 
 
-if __name__ == '__main__':
-
-    #test: python3 segment.py /usr/local/hdd/rita/msimaging/190927_AR_ZT13_Lipids/190927_AR_ZT13_Lipids.imzML
-    fname = sys.argv[1]
-    background_region = int(sys.argv[2])
-    for specStart in [0]:#, 1992]:
-
-        imze = IMZMLExtract(fname, specStart=specStart)
-
-        if background_region:
-            back_spectrum = imze.avg_background(background_region)
-            print('Got the background!')
-        else:
-            back_spectrum = None
-        for region in imze.get_region_ids():
-            if not region==background_region:
-                spectra = imze.get_region_array(region, back_spectrum)
-                seg = Segmenter()
-                outclust = seg.calc_similarity(spectra)
-                filename = fname + "." + str(imze.specStart)+"_"+str(region)+".pickle"
-                similarity_matrix = open(filename,"wb")
-                pickle.dump(outclust, similarity_matrix)
-
-    
+    def get_background(self):
+        # determine the smallest region in imzML file which will be considered as background measurement
+        max_surface = sys.maxsize
+        background_region = None
+        for region in self.get_region_ids():
+                xs = (self.get_region_range(region)[0][0],self.get_region_range(region)[0][1])
+                ys = (self.get_region_range(region)[1][0],self.get_region_range(region)[1][1])
+                surface = (xs[1] - xs[0])*(ys[1] - ys[0])
+                
+                if max_surface > surface:
+                    max_surface = surface
+                    background_region = region
+        print("Background is: "+str(background_region))
+        return background_region
