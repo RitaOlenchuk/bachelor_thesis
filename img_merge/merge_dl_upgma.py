@@ -3,7 +3,7 @@ from PIL import Image
 import imageio
 from matplotlib import pyplot as plt
 
-img_path = '/usr/local/hdd/aorta_images/img_merge_test/34_outfile.png'
+img_path = '/usr/local/hdd/rita/DL/image_merge/sequence/ZT13_10-1.tif.small.tif_dl.png'
 img = Image.open(img_path)
 img = np.array(img, dtype=np.float32)
 img = img / np.max(np.max(img))
@@ -19,64 +19,33 @@ membrane = np.argwhere(img==1)
 plaque = np.argwhere(img==2)
 
 
-img_path2 = '/usr/local/hdd/aorta_images/img_merge_test/segmented.png'
+img_path2 = '/usr/local/hdd/rita/DL/image_merge/sequence/ZT13_10-1segmented.png'
 img2 = Image.open(img_path2)
 img2 = np.array(img2)
 n_segments = (len(set(img2.flatten())))
 print('Number of segments: ',n_segments)
 
-fig = plt.figure()
-
-plt.subplot(221)
-plt.imshow(img, cmap='gray')
-plt.axis('off')
-plt.title('DL', fontsize=16)
-
-plt.subplot(222)
-plt.imshow(img2, cmap='gray')
-plt.axis('off')
-plt.title('Segmented', fontsize=16)
-
-plt.show()
-
-#fig = plt.figure()
-
-#plt.subplot(221)
-#plt.imshow(img2, cmap='gray')
-#plt.axis('off')
-#plt.title('DL', fontsize=16)
-
-#m = 38
-#tmp = np.argwhere(img2==m)
-#plt.subplot(222)
-#plt.imshow(img2, cmap='gray')
-#plt.scatter([t1[1] for t1 in tmp], [t2[0] for t2 in tmp], c='red', s=1, label='Segment '+str(m))
-#plt.axis('off')
-#plt.legend()
-#plt.title('Segmented', fontsize=16)
-
-#plt.show()
-
 output_image = np.zeros(img.shape)
 for segm in range(n_segments):
     
     coords = np.argwhere(img2 == segm) #all coordinates that belong to the segment
+    #print(coords)
     frequencies = [0, 0, 0] #how often the coordinate in selected segment belong to (background, membrane, plaque)
-    
-    for coord in coords:
-        if img[coord[0], coord[1]] == 0:
-            frequencies[0] += 1
-        elif img[coord[0], coord[1]] == 1:
-            frequencies[1] += 1
-        elif img[coord[0], coord[1]] == 2:
-            frequencies[2] += 1
-    struct = np.argmax(frequencies)
-    for c in coords:
-        output_image[c[0], c[1]] = struct
+    if len(coords) > 1:
+        for coord in coords:
+            if img[coord[0], coord[1]] == 0:
+                frequencies[0] += 1
+            elif img[coord[0], coord[1]] == 1:
+                frequencies[1] += 1
+            elif img[coord[0], coord[1]] == 2:
+                frequencies[2] += 1
+        struct = np.argmax(frequencies)
+        for c in coords:
+            output_image[c[0], c[1]] = struct
     #output_image[coords] = struct
 
 fig = plt.figure()
-fig.suptitle('Q = 0.002', fontsize=16)
+fig.suptitle('Q = 0.01', fontsize=16)
 
 plt.subplot(131)
 plt.imshow(img)
@@ -96,5 +65,5 @@ plt.title('Mix', fontsize=16)
 #plt.savefig('dl_segm_mixed2.png')
 plt.show()
 
-
+imageio.imwrite('/usr/local/hdd/rita/DL/image_merge/sequence/ZT13_10-1merged.png', output_image)
 
