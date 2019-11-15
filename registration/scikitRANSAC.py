@@ -10,14 +10,16 @@ from skimage.measure import ransac
 import matplotlib.pyplot as plt
 import numpy as np
 #https://www.researchgate.net/publication/264197576_scikit-image_Image_processing_in_Python
-img1 = rgb2gray(io.imread('/usr/local/hdd/aorta_images/AR ZT13 8-1/AR_ZT13_8_1_rotated.jpg'))
-img2 = rgb2gray(io.imread('/usr/local/hdd/aorta_images/HE/ZT13 8-1.tif'))
+img1 = rgb2gray(io.imread('/usr/local/hdd/rita/DL/model_ZT113_150/ZT13_5-1.tif.small.tif_dl.png'))
+img2 = rgb2gray(io.imread('/usr/local/hdd/rita/DL/model_ZT113_150/ZT13_6-1.tif.small.tif_dl.png'))
 
-#img1 = rgb2gray(io.imread('/usr/local/hdd/rita/DL/sequence/ZT13_4-1.tif.small.tif'))
-#img2 = rgb2gray(io.imread('/usr/local/hdd/rita/DL/sequence/ZT13_5-1.tif.small.tif'))
+img3 = io.imread('/usr/local/hdd/rita/DL/model_ZT113_150/ZT13_5-1.tif.small.tif_dl.png')
+img4 = io.imread('/usr/local/hdd/rita/DL/model_ZT113_150/ZT13_6-1.tif.small.tif_dl.png')
 
-img1 = transform.rescale(img1, 0.1, multichannel=False)
-img2 = transform.rescale(img2, 0.15, multichannel=False)
+factor = 0.2
+
+img1 = transform.rescale(img1, factor, multichannel=False)
+img2 = transform.rescale(img2, factor, multichannel=False)
 
 random.seed(0)
 
@@ -76,11 +78,44 @@ output_shape = np.ceil(output_shape[::-1])
 
 offset = transform.SimilarityTransform(translation=-corner_min)
 
+print("offset")
+print(offset.params)
+print("model")
+print(model_robust.params)
+print("model+")
+print((model_robust+offset).params)
+
+#Not really cool rescaling
+offset_tmatrix =  np.copy(offset.params)
+offset_tmatrix[0, 2] = offset_tmatrix[0, 2]/factor
+offset_tmatrix[1, 2] = offset_tmatrix[1, 2]/factor
+
+model_robust_tmatrix =  np.copy(model_robust.params)
+model_robust_tmatrix[0, 2] = model_robust_tmatrix[0, 2]/factor
+model_robust_tmatrix[1, 2] = model_robust_tmatrix[1, 2]/factor
+
+model_robust_offset_tmatrix = np.copy((model_robust+offset).params)
+model_robust_offset_tmatrix[0, 2] = offset_tmatrix[0, 2] + model_robust_tmatrix[0, 2]
+model_robust_offset_tmatrix[1, 2] = offset_tmatrix[1, 2] + model_robust_tmatrix[1, 2]
+factor2 = 1.05
+img3_ = warp(img3, np.linalg.inv(offset_tmatrix), output_shape=(img3.shape[0]*factor2, img3.shape[1]*factor2), cval=-1)
+img4_ = warp(img4, np.linalg.inv(model_robust_offset_tmatrix), output_shape=(img3.shape[0]*factor2, img3.shape[1]*factor2), cval=-1)
+print()
+print("offset")
+print(offset_tmatrix)
+print("model")
+print(model_robust_tmatrix)
+print("model+")
+print(model_robust_offset_tmatrix)
+
 img1_ = warp(img1, offset.inverse, output_shape=output_shape, cval=-1)
 img2_ = warp(img2, (model_robust+offset).inverse, output_shape=output_shape, cval=-1)
 
+#img1_ = warp(img1, np.linalg.inv(offset.params), output_shape=output_shape, cval=-1)
+#img2_ = warp(img2, np.linalg.inv((model_robust+offset).params), output_shape=output_shape, cval=-1)
+
 fig = plt.figure(constrained_layout=True)
-gs = fig.add_gridspec(3, 2)
+gs = fig.add_gridspec(3, 3)
 f_ax1 = fig.add_subplot(gs[0, :])
 plot_matches(f_ax1, img1, img2, keypoints1, keypoints2, matches12)
 f_ax1.axis('off')
@@ -93,14 +128,22 @@ f_ax3 = fig.add_subplot(gs[1, 1])
 f_ax3.imshow(img1_)
 f_ax3.axis('off')
 f_ax3.set_title("img1_")
-f_ax4 = fig.add_subplot(gs[2, 0])
-f_ax4.imshow(img2)
+f_ax4 = fig.add_subplot(gs[1, 2])
+f_ax4.imshow(img3_)
 f_ax4.axis('off')
-f_ax4.set_title("img2")
-f_ax5 = fig.add_subplot(gs[2, 1])
-f_ax5.imshow(img2_)
+f_ax4.set_title("img3_")
+f_ax5 = fig.add_subplot(gs[2, 0])
+f_ax5.imshow(img2)
 f_ax5.axis('off')
-f_ax5.set_title("img2_")
+f_ax5.set_title("img2")
+f_ax6 = fig.add_subplot(gs[2, 1])
+f_ax6.imshow(img2_)
+f_ax6.axis('off')
+f_ax6.set_title("img2_")
+f_ax7 = fig.add_subplot(gs[2, 2])
+f_ax7.imshow(img4_)
+f_ax7.axis('off')
+f_ax7.set_title("img4_")
 plt.show()
 
 
