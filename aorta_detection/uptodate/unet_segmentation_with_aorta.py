@@ -1,4 +1,5 @@
 import os
+import random
 import numpy as np
 from PIL import Image
 from matplotlib import pyplot as plt
@@ -10,11 +11,13 @@ from keras.layers import Flatten
 from keras.optimizers import Adam
 from keras import backend as K
 from keras.models import model_from_json
+import data_augmentation
 
 
 train_path = '/usr/local/hdd/rita/DL/final_training_set/'
 
 n_train_image = 40 #ZT1 19 ZT13 21
+n_files_desired = 1000
 n_classes = 3
 
 def rgb2gray(rgb):
@@ -27,8 +30,8 @@ input_shape = (480, 640, 1)
 
 endName = "small.tif"
 
-train_image = np.empty(n_train_image * input_shape[0] * input_shape[1] )
-train_image = train_image.reshape((n_train_image, ) + input_shape)
+train_image = np.empty(n_files_desired * input_shape[0] * input_shape[1] )
+train_image = train_image.reshape((n_files_desired, ) + input_shape)
 files = sorted([f for f in os.listdir(train_path) if f.endswith(endName) and f.startswith("ZT1")])
 print(len(files))
 print(files)
@@ -49,8 +52,8 @@ print(len(files))
 label_shape = (480, 640, 3)
 
 # load train labels
-train_label = np.empty(n_train_image * label_shape[0] * label_shape[1] * label_shape[2] )
-train_label = train_label.reshape((n_train_image, ) + label_shape)
+train_label = np.empty(n_files_desired * label_shape[0] * label_shape[1] * label_shape[2] )
+train_label = train_label.reshape((n_files_desired, ) + label_shape)
 files = sorted([f for f in os.listdir(os.path.join(train_path, "labels")) if f.endswith(endName) and f.startswith("masks.seg_ZT1")])
 print(len(files))
 
@@ -67,12 +70,50 @@ for i in files:
     img [img >= 0.8] = 1
     img [selParts] = 2
     img [img < 1] = 0
-    plt.imshow(img)
-    plt.show()
+
     img = (np.arange(img.max()+1) == img[...,None]).astype(np.float32)
 
     train_label[count, :, :, :] = img
     count += 1
+
+# dictionary of the transformations functions we defined earlier
+available_transformations = {
+    'rotate': data_augmentation.random_rotation,
+    'noise': data_augmentation.random_noise,
+    'horizontal_flip': data_augmentation.horizontal_flip
+}
+
+num_generated_files = n_train_image
+while num_generated_files < n_files_desired:
+    index = random.randint(0, n_train_image) 
+    image_to_transform = train_image[index,:,:,0]
+    mask_to_transform = train_label[index,:,:,:]
+    plt.imshow(image_to_transform)
+    plt.show()
+    plt.imshow(mask_to_transform)
+    plt.show()
+    num_transformations = 0
+    # random num of transformations to apply
+    num_transformations_to_apply = random.randint(1, len(available_transformations))
+    transformed_image = None
+    transformed_mask = None
+
+    while num_transformations <= num_transformations_to_apply:
+        key = random.choice(list(available_transformations))
+
+        transformed_image = available_transformations[key](image_to_transform)
+        transformed_mask = available_transformations[key](mask_to_transform)
+
+        num_transformations += 1
+    plt.imshow(transformed_image)
+    plt.show()
+    plt.imshow(transformed_mask)
+    plt.show()
+
+    train_image[num_generated_files, :, :, 0] = transformed_image
+    train_label[num_generated_files, :, :, :] = transformed_mask
+
+    num_generated_files += 1
 
 if False:
 
