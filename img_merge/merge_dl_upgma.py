@@ -3,7 +3,7 @@ from PIL import Image
 import imageio
 from matplotlib import pyplot as plt
 
-img_path = '/usr/local/hdd/rita/DL/image_merge/sequence/ZT13_10-1.tif.small.tif_dl.png'
+img_path = '/usr/local/hdd/rita/DL/image_merge/sequence1/ZT13_7-1.tif.small.tif_dl.png'
 img = Image.open(img_path)
 img = np.array(img, dtype=np.float32)
 img = img / np.max(np.max(img))
@@ -19,7 +19,7 @@ membrane = np.argwhere(img==1)
 plaque = np.argwhere(img==2)
 
 
-img_path2 = '/usr/local/hdd/rita/DL/image_merge/sequence/ZT13_10-1segmented.png'
+img_path2 = '/usr/local/hdd/rita/DL/image_merge/sequence1/ZT13_7-1segmented.png'
 img2 = Image.open(img_path2)
 img2 = np.array(img2)
 n_segments = (len(set(img2.flatten())))
@@ -45,7 +45,7 @@ for segm in range(n_segments):
     #output_image[coords] = struct
 
 fig = plt.figure()
-fig.suptitle('Q = 0.01', fontsize=16)
+fig.suptitle('Q = 0.02', fontsize=16)
 
 plt.subplot(131)
 plt.imshow(img)
@@ -65,5 +65,5 @@ plt.title('Mix', fontsize=16)
 #plt.savefig('dl_segm_mixed2.png')
 plt.show()
 
-imageio.imwrite('/usr/local/hdd/rita/DL/image_merge/sequence/ZT13_10-1merged.png', output_image)
+imageio.imwrite('/usr/local/hdd/rita/DL/image_merge/sequence1/ZT13_7-1merged.png', output_image)
 
