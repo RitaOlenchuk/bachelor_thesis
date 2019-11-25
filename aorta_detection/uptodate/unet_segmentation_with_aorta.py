@@ -80,7 +80,8 @@ for i in files:
 available_transformations = {
     'rotate': data_augmentation.random_rotation,
     'noise': data_augmentation.random_noise,
-    'horizontal_flip': data_augmentation.horizontal_flip
+    'horizontal_flip': data_augmentation.horizontal_flip,
+    'vertical_flip' : data_augmentation.vertical_flip
 }
 
 num_generated_files = n_train_image
@@ -95,21 +96,21 @@ while num_generated_files < n_files_desired:
     num_transformations = 0
     # random num of transformations to apply
     num_transformations_to_apply = random.randint(1, len(available_transformations))
-    transformed_image = None
-    transformed_mask = None
+    transformed_image = np.copy(image_to_transform)
+    transformed_mask = np.copy(mask_to_transform)
 
     while num_transformations <= num_transformations_to_apply:
         key = random.choice(list(available_transformations))
         if key=='rotate':
             random_degree = random.uniform(-25, 25)
-            transformed_image = available_transformations[key](image_to_transform, random_degree)
-            transformed_mask = available_transformations[key](mask_to_transform, random_degree)
+            transformed_image = available_transformations[key](transformed_image, random_degree)
+            transformed_mask = available_transformations[key](transformed_mask, random_degree)
         elif key=='noise':
-            transformed_image = available_transformations[key](image_to_transform)
-            transformed_mask = mask_to_transform
-        elif key=='horizontal_flip':
-            transformed_image = available_transformations[key](image_to_transform)
-            transformed_mask = available_transformations[key](mask_to_transform)
+            transformed_image = available_transformations[key](transformed_image)
+            transformed_mask = transformed_mask
+        elif key=='horizontal_flip' or key=='vertical_flip':
+            transformed_image = available_transformations[key](transformed_image)
+            transformed_mask = available_transformations[key](transformed_mask)
 
         num_transformations += 1
     plt.imshow(transformed_image)
@@ -122,6 +123,7 @@ while num_generated_files < n_files_desired:
 
     num_generated_files += 1
 
+exit()
 
 def dice_coefficient(y_true, y_pred, smooth=1.0):
     y_true_f = K.flatten(y_true)

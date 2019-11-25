@@ -14,3 +14,6 @@ def random_noise(image_array: ndarray):
 def horizontal_flip(image_array: ndarray):
     # horizontal flip doesn't need skimage, it's easy as flipping the image array of pixels !
     return image_array[:, ::-1]
+
+def vertical_flip(image_array: ndarray):
+    return image_array[::-1, :]
