@@ -85,7 +85,7 @@ available_transformations = {
 
 num_generated_files = n_train_image
 while num_generated_files < n_files_desired:
-    index = random.randint(0, n_train_image) 
+    index = random.randint(0, n_train_image-1) 
     image_to_transform = train_image[index,:,:,0]
     mask_to_transform = train_label[index,:,:,:]
     plt.imshow(image_to_transform)
@@ -100,9 +100,16 @@ while num_generated_files < n_files_desired:
 
     while num_transformations <= num_transformations_to_apply:
         key = random.choice(list(available_transformations))
-
-        transformed_image = available_transformations[key](image_to_transform)
-        transformed_mask = available_transformations[key](mask_to_transform)
+        if key=='rotate':
+            random_degree = random.uniform(-25, 25)
+            transformed_image = available_transformations[key](image_to_transform, random_degree)
+            transformed_mask = available_transformations[key](mask_to_transform, random_degree)
+        elif key=='noise':
+            transformed_image = available_transformations[key](image_to_transform)
+            transformed_mask = mask_to_transform
+        elif key=='horizontal_flip':
+            transformed_image = available_transformations[key](image_to_transform)
+            transformed_mask = available_transformations[key](mask_to_transform)
 
         num_transformations += 1
     plt.imshow(transformed_image)
@@ -115,19 +122,6 @@ while num_generated_files < n_files_desired:
 
     num_generated_files += 1
 
-if False:
-
-    for i in range(16, train_image.shape[0]):
-        fig = plt.figure(figsize = (12, 12))
-        plt.subplot(221)
-        plt.imshow(train_image[i, :, :, 0], cmap='gray')
-        plt.axis('off')
-        plt.title('Image 0', fontsize=16)
-        plt.subplot(222)
-        plt.imshow(train_label[i, :, :, 0], cmap='gray')
-        plt.axis('off')
-        plt.title('Label 0', fontsize=16)
-        plt.show()
 
 def dice_coefficient(y_true, y_pred, smooth=1.0):
     y_true_f = K.flatten(y_true)

@@ -4,9 +4,7 @@ import skimage as sk
 from skimage import transform
 from skimage import util
 
-def random_rotation(image_array: ndarray):
-    # pick a random degree of rotation between 25% on the left and 25% on the right
-    random_degree = random.uniform(-25, 25)
+def random_rotation(image_array: ndarray, random_degree):
     return sk.transform.rotate(image_array, random_degree)
 
 def random_noise(image_array: ndarray):
