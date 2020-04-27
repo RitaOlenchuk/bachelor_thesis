@@ -11,6 +11,9 @@ model = "testInteraction.html"
 app = Flask(__name__, static_folder=dataurl, static_url_path='/templates')
 CORS(app)
 
+with open('config_files.json') as json_file:
+    data = json.load(json_file)
+
 #@app.route('/')
 #def showModel():
 #    return send_from_directory(app.static_folder, model)
@@ -46,16 +49,47 @@ def getInfo():
     elif elemID == 3:
         newtext = 'Plaque'
     elif elemID == 4:
-        newtext = 'Neurophil'
+        newtext = 'MSI protein'
+        for elem in data:
+            if elem["type"] == "MSI":
+                path = elem["path"]
+                #f not os.path.isfile(path):
+                #    os.system("minPlotImzml.py")
+                
+    elif elemID == 5:
+        newtext = 'HE staining'
+        for elem in data:
+            if elem["type"] == "HE":
+                path = elem["path"]
+    elif elemID == 6:
+        newtext = 'Merged channels'
+        for elem in data:
+            if elem["type"] == "Merged":
+                path = elem["path"]
+    elif elemID == 7:
+        newtext = 'MSI lipids'
+        for elem in data:
+            if elem["type"] == "MSI":
+                path = elem["path"]
+                #if not os.path.isfile(path):
+                #    os.system("minPlotImzml.py")
     else:
-        newtext = 'Macrophage'
+        newtext = 'Not named'
+
 
     print(newtext)
 
-    jsonStr = json.dumps({
-        "text": newtext,
-        "elemid": elemID
-    })
+    if elemID>3:
+        jsonStr = json.dumps({
+            "text": newtext,
+            "elemid": elemID,
+            "path": path #os.path.relpath(path)
+        })
+    else:
+        jsonStr = json.dumps({
+            "text": newtext,
+            "elemid": elemID
+        })
 
     retResponse = app.make_response((jsonStr, 200, None))
     retResponse.mimetype = "application/json"
@@ -69,5 +103,5 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser(description='--references genome.fa')
     ap.add_argument('--port', type=int, default=5000, required=False)
     args = ap.parse_args()
-
+    print(args.port)
     app.run(threaded=True, host="0.0.0.0", port=args.port)

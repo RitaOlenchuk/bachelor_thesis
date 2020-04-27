@@ -54,7 +54,7 @@
                 document.body.appendChild( container );
                 
                 containerSide=document.createElement("div")
-                containerSide.style.background = "#AAAA11"
+                containerSide.style.background = "#D3D3D3"
 				containerSide.style.fontSize = "30px";
                 containerSide.style.display="block"
                 containerSide.style.width=windowWidthMargin+"px"
@@ -65,8 +65,8 @@
 				scene = new THREE.Scene();
 				scene.background = new THREE.Color( 0xf0f0f0 );
 
-				camera = new THREE.PerspectiveCamera( 70, windowWidth / windowHeight, 1, 10000 );
-				camera.position.set( 0, 0, 100 );
+				camera = new THREE.PerspectiveCamera( 45, windowWidth / windowHeight, 0.1, 10000 );
+				camera.position.set( 0, 0, 1800 );
 				scene.add( camera );
 
 				var light = new THREE.DirectionalLight( 0xffffff, 1 );
@@ -94,21 +94,20 @@
 				var geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
 
 				var loader = new STLLoader();
-				var material1 = new THREE.MeshPhongMaterial( { color: 0xCC0000, specular: 0x111111, shininess: 200 } );
-				loader.load( './models/membrane1.stl', function ( geometry ) {
+				var material1 = new THREE.MeshPhongMaterial( { color: 0xA9A9A9, specular: 0x111111, shininess: 200 } );
+				loader.load( './models/base/membrane1.stl', function ( geometry ) {
 
-					var meshMaterial = material1;
+					var meshMaterial = material1
 					if ( geometry.hasColors ) {
 
 						meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
 
 					}
-
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
-					mesh.position.set( 0.0, 0.0, 0 );
+					mesh.position.set( -500.0,  -700.0, 0);
 					mesh.rotation.set(0, 0, 0 );
-					mesh.scale.set( 5,5,5 );
+					mesh.scale.set( 2,2,2 );
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
@@ -118,33 +117,37 @@
 					scene.add( mesh );
 
 				} );
-				var material2 = new THREE.MeshPhongMaterial( { color: 0xFFB400, specular: 0x111111, shininess: 200 } );
-				loader.load( './models/membrane2.stl', function ( geometry ) {
 
-					var meshMaterial = material2;
+				
+
+
+				loader.load( './models/base/membrane2.stl', function ( geometry ) {
+
+					var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xC0C0C0, specular: 0x111111, shininess: 200 } );
 					if ( geometry.hasColors ) {
 
 						meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
 
 					}
+					var mesh;
+					mesh = new THREE.Mesh( geometry, meshMaterial );
 
-					var mesh = new THREE.Mesh( geometry, meshMaterial );
-
-					mesh.position.set( 0.0, 0.0, 0 );
+					mesh.position.set( -500.0,  -700.0, 0);
 					mesh.rotation.set( 0, 0, 0 );
-					mesh.scale.set( 5,5,5 );
+					mesh.scale.set( 2,2,2 );
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
 					mesh.elemid = 1;
 
 					scene.add( mesh );
+					
 
 				} );
 
-				var material3 = new THREE.MeshPhongMaterial( { color: 0xFFEC00, specular: 0x111111, shininess: 200 } );
+				var material3 = new THREE.MeshPhongMaterial( { color: 0xA9A9A9, specular: 0x111111, shininess: 200 } );
 
-				loader.load( './models/membrane3.stl', function ( geometry ) {
+				loader.load( './models/base/membrane3.stl', function ( geometry ) {
 
 					var meshMaterial = material3;
 					if ( geometry.hasColors ) {
@@ -155,9 +158,9 @@
 
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
-					mesh.position.set( 0.0, 0.0, 0 );
+					mesh.position.set( -500.0,  -700.0, 0 );
 					mesh.rotation.set( 0, 0, 0 );
-					mesh.scale.set( 5,5,5 );
+					mesh.scale.set( 2,2,2 );
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
@@ -166,8 +169,8 @@
 					scene.add( mesh );
 
 				} );
-				var material4 = new THREE.MeshPhongMaterial( { color: 0x4C1130, specular: 0x111111, shininess: 200 } );
-				loader.load( './models/plaque.stl', function ( geometry ) {
+				var material4 = new THREE.MeshPhongMaterial( { color: 0x808080, specular: 0x111111, shininess: 200 } );
+				loader.load( './models/base/plaque.stl', function ( geometry ) {
 
 					var meshMaterial = material4;
 					if ( geometry.hasColors ) {
@@ -178,9 +181,9 @@
 
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
-					mesh.position.set( 0.0, 2.0, 0 );
+					mesh.position.set( -500.0, -700.0, 0 );
 					mesh.rotation.set( 0, 0,  0 );
-					mesh.scale.set( 5,5,5 );
+					mesh.scale.set( 2,2,2 );
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
@@ -189,8 +192,8 @@
 					scene.add( mesh );
 
 				} );
-				var material5 = new THREE.MeshPhongMaterial( { color: 0x8fbc8f, specular: 0x111111, shininess: 200 } );
-				loader.load( './models/neurophil.stl', function ( geometry ) {
+				/*var material5 = new THREE.MeshPhongMaterial( { color: 0x696969, specular: 0x111111, shininess: 200 } );
+				loader.load( './models/base/macrophage.stl', function ( geometry ) {
 
 					var meshMaterial = material5;
 					if ( geometry.hasColors ) {
@@ -201,9 +204,9 @@
 
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
-					mesh.position.set( 0.0, 0.0, 0 );
-					mesh.rotation.set( 0, 0,  -0.25 );
-					mesh.scale.set( 3,3,3 );
+					mesh.position.set( -500.0, -700.0, 0 );
+					mesh.rotation.set( 0, 0,  0 );
+					mesh.scale.set( 2,2,2 );
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
@@ -211,11 +214,16 @@
 
 					scene.add( mesh );
 
-				} );
-				var material6 = new THREE.MeshPhongMaterial( { color: 0x20b2aa, specular: 0x111111, shininess: 200 } );
-				loader.load( './models/neurophil.stl', function ( geometry ) {
+				} );*/
 
-					var meshMaterial = material6;
+
+				/* CIRCULAR SLIDES ACCORDING TO CONFIG FILE */
+
+				/* NO PLAQUE */
+				
+				loader.load( './models/no_plaque_slide/circ_no_plaque.stl', function ( geometry ) {
+
+					var meshMaterial = new THREE.MeshPhongMaterial( { color: 0x32CD32, specular: 0x111111, shininess: 200 } );
 					if ( geometry.hasColors ) {
 
 						meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
@@ -224,9 +232,34 @@
 
 					var mesh = new THREE.Mesh( geometry, meshMaterial );
 
-					mesh.position.set( 0, -8, 0 );
-					mesh.rotation.set( 0, 0,  - Math.PI/1.9  );
-					mesh.scale.set( 4,4,4 );
+					mesh.position.set( -150.0, -550.0, 300 );
+					mesh.rotation.set( - Math.PI/2 ,0, 0);
+					mesh.scale.set( 0.72,0.72,0.72);
+
+					mesh.castShadow = true;
+					mesh.receiveShadow = true;
+					mesh.elemid = 4;
+
+					scene.add( mesh );
+
+				} );
+
+				/* MINI PLAQUE */
+				
+				loader.load( './models/mini_plaque_slide/circ_mini_plaque.stl', function ( geometry ) {
+
+					var meshMaterial = new THREE.MeshPhongMaterial( { color: 0xFFD700, specular: 0x111111, shininess: 200 } );
+					if ( geometry.hasColors ) {
+
+						meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
+
+					}
+
+					var mesh = new THREE.Mesh( geometry, meshMaterial );
+
+					mesh.position.set( -150.0, -325.0, 300 );
+					mesh.rotation.set( - Math.PI/2 ,0, 0);
+					mesh.scale.set( 0.72,0.72,0.72);
 
 					mesh.castShadow = true;
 					mesh.receiveShadow = true;
@@ -235,6 +268,46 @@
 					scene.add( mesh );
 
 				} );
+
+
+				/* PLAQUE */
+
+				loader.load( './models/plaque_slide/circ_plaque.stl', function ( geometry ) {
+
+					var meshMaterial = new THREE.MeshPhongMaterial( { color: 0x6495ED, specular: 0x111111, shininess: 200 } );
+					if ( geometry.hasColors ) {
+
+						meshMaterial = new THREE.MeshPhongMaterial( { opacity: geometry.alpha, vertexColors: THREE.VertexColors } );
+
+					}
+
+					var mesh = new THREE.Mesh( geometry, meshMaterial );
+
+					mesh.position.set( -150.0, -100.0, 300 );
+					mesh.rotation.set( - Math.PI/2 ,0, 0);
+					mesh.scale.set( 0.7,0.7,0.7);
+
+					mesh.castShadow = true;
+					mesh.receiveShadow = true;
+					mesh.elemid = 6;
+
+					scene.add( mesh );
+
+					meshMaterial = new THREE.MeshPhongMaterial( { color: 0x800080, specular: 0x111111, shininess: 200 } );
+					mesh = new THREE.Mesh( geometry, meshMaterial );
+
+					mesh.position.set( -150.0, -225.0, 300 );
+					mesh.rotation.set( - Math.PI/2 ,0, 0);
+					mesh.scale.set( 0.7,0.7,0.7);
+
+					mesh.castShadow = true;
+					mesh.receiveShadow = true;
+					mesh.elemid = 7;
+
+					scene.add( mesh );
+
+				} );
+				
 
 			}
 
@@ -262,8 +335,16 @@
 					if (containerSide.hasChildNodes()) {
 						containerSide.removeChild(containerSide.childNodes[0]);
 					} 
+					if (containerSide.hasChildNodes()) {
+						containerSide.removeChild(containerSide.childNodes[0]);
+					} 
 					containerSide.appendChild( elemInfo )
-					
+					if (respData["elemid"]>3){
+						var img = document.createElement("img");
+						img.src = respData["path"];
+						img.style.width = "80%";
+						containerSide.appendChild(img);
+					}
 
 
 				};
