@@ -1,0 +1,16 @@
+[{ "type": "MSI",
+    "path": "/test/msi.png",
+    "region": 1,
+    "level": 27,
+    "location": "BCA/AR"
+    },
+{"type": "HE",
+    "path": "/test/ZT13_1-1.tif",
+    "region": 1,
+    "level": 27,
+    "location": "BCA/AR"},
+{"type": "Merged",
+    "path": "/test/merged.jpg",
+    "region": 1,
+    "level": 27,
+    "location": "BCA/AR"}]
